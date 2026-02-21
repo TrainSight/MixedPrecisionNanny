@@ -1,0 +1,99 @@
+{
+  "title": "PyTorch AMP Unsafe Operations",
+  "description": "PyTorch自动混合精度中需要注意的算子分类",
+  "source": "https://docs.pytorch.org/docs/stable/amp.html",
+  "categories": {
+    "force_fp32": {
+      "description": "这些算子在autocast中会被PyTorch自动转为FP32执行",
+      "ops": [
+        {"name": "sum", "risk": "累积误差"},
+        {"name": "mean", "risk": "累积误差"},
+        {"name": "cumsum", "risk": "累积误差"},
+        {"name": "cumprod", "risk": "累积误差"},
+        {"name": "prod", "risk": "累积误差"},
+        {"name": "softmax", "risk": "数值稳定性"},
+        {"name": "log_softmax", "risk": "数值稳定性"},
+        {"name": "cross_entropy", "risk": "数值稳定性"},
+        {"name": "nll_loss", "risk": "数值稳定性"},
+        {"name": "l1_loss", "risk": "数值稳定性"},
+        {"name": "mse_loss", "risk": "数值稳定性"},
+        {"name": "layer_norm", "risk": "数值稳定性"},
+        {"name": "batch_norm", "risk": "数值稳定性"},
+        {"name": "group_norm", "risk": "数值稳定性"},
+        {"name": "instance_norm", "risk": "数值稳定性"},
+        {"name": "exp", "risk": "溢出风险"},
+        {"name": "log", "risk": "定义域限制"},
+        {"name": "log1p", "risk": "定义域限制"},
+        {"name": "log2", "risk": "定义域限制"},
+        {"name": "log10", "risk": "定义域限制"},
+        {"name": "pow", "risk": "数值范围"},
+        {"name": "sqrt", "risk": "定义域限制"},
+        {"name": "rsqrt", "risk": "定义域限制"},
+        {"name": "cdist", "risk": "数值稳定性"},
+        {"name": "pdist", "risk": "数值稳定性"},
+        {"name": "cosine_similarity", "risk": "数值稳定性"}
+      ]
+    },
+    "safe_fp16": {
+      "description": "这些算子可以安全地在FP16/BF16中执行，且有加速",
+      "ops": [
+        "linear",
+        "conv1d",
+        "conv2d",
+        "conv3d",
+        "matmul",
+        "mm",
+        "bmm",
+        "mv",
+        "relu",
+        "gelu",
+        "silu"
+      ]
+    },
+    "type_promotion": {
+      "description": "这些算子会将输入提升为最宽的类型，混合类型时可能产生FP32输出",
+      "ops": [
+        "cat",
+        "stack",
+        "addcmul",
+        "addcdiv",
+        "bilinear",
+        "cross",
+        "dot",
+        "tensordot"
+      ]
+    },
+    "forbidden": {
+      "description": "这些算子在AMP中明确禁止使用",
+      "ops": [
+        {
+          "name": "binary_cross_entropy",
+          "reason": "数值不稳定，会报错",
+          "alternative": "binary_cross_entropy_with_logits"
+        }
+      ]
+    }
+  },
+  "user_code_patterns": {
+    "manual_cast": {
+      "pattern": ".half() 或 .bfloat16()",
+      "risk_level": "HIGH",
+      "description": "手动类型转换会绕过AMP的自动类型提升机制，可能导致类型不一致或失去保护",
+      "example_bad": "x = x.half()",
+      "example_good": "# 删除手动转换，使用with autocast():"
+    },
+    "loss_outside_autocast": {
+      "pattern": "loss计算在autocast上下文外",
+      "risk_level": "HIGH",
+      "description": "loss计算如果在autocast外，输入类型可能不一致",
+      "example_bad": "with autocast():\\n    output = model(input)\\nloss = criterion(output, target)",
+      "example_good": "with autocast():\\n    output = model(input)\\n    loss = criterion(output, target)"
+    },
+    "custom_autograd": {
+      "pattern": "自定义autograd函数未处理类型",
+      "risk_level": "MEDIUM",
+      "description": "自定义Function的forward/backward需要正确处理类型",
+      "suggestion": "使用@torch.autocast装饰器或手动类型处理"
+    }
+  }
+}

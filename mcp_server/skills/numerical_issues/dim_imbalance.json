@@ -1,0 +1,23 @@
+{
+  "title": "维度不平衡问题",
+  "description": "Tensor不同维度间数值范围差异导致的大数吃小数问题",
+  "severity": "HIGH",
+  "scenario": "无人驾驶场景中，x轴（车辆前进方向）数值范围远大于y轴（横向）",
+  "root_cause": "BF16/FP16精度有限，大数值会'吃掉'小数值的精度",
+  "detection": {
+    "condition": "维度间最大比值 > 1e4",
+    "code_example": "# 检测代码\nratio = dim_max / dim_min\nif ratio > 1e4:\n    alert('维度不平衡风险')"
+  },
+  "example": {
+    "problem_code": "data = torch.tensor([[1000.0, 0.5], [-800.0, -0.3]])\nresult = data.sum(dim=0)  # y轴精度丢失",
+    "fp32_result": "[900.0, 0.2]",
+    "bf16_result": "[900.0, 0.0]  # y轴被吃掉",
+    "fix": "result = data.float().sum(dim=0)  # 先转FP32再reduce"
+  },
+  "related_ops": ["sum", "mean", "cumsum"],
+  "fix_strategies": [
+    "在reduce前将tensor转为FP32",
+    "分维度分别处理",
+    "对数据进行标准化（归一化）"
+  ]
+}
