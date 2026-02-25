@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# 虚拟环境
+.venv/
+venv/
+env/
+
+# pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# 监控输出（运行时产生，不纳入版本控制）
+nanny_logs/
+*.db
+*.db-wal
+*.db-shm
+
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.swp
