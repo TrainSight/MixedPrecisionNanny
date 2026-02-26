@@ -225,7 +225,7 @@ class TestBackwardHook:
 
         sampler.advance(0)
         hm.set_step(0)
-        loss = model(torch.randn(2, 4)).sum()
+        loss = model(torch.randn(2, 4, requires_grad=True)).sum()
         loss.backward()
         writer.flush()
 
@@ -240,7 +240,7 @@ class TestBackwardHook:
 
         sampler.advance(0)
         hm.set_step(0)
-        model(torch.randn(2, 4)).sum().backward()
+        model(torch.randn(2, 4, requires_grad=True)).sum().backward()
         writer.flush()
 
         rows = db_query(db_path, "SELECT dtype FROM layer_stats WHERE phase='backward'")
