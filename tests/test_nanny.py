@@ -111,7 +111,7 @@ class TestStepContextManager:
             model, output_dir=str(tmp_path), trace_interval=1, verbose=False
         )
         with nanny.step(0):
-            model(torch.randn(2, 8)).sum().backward()
+            model(torch.randn(2, 8, requires_grad=True)).sum().backward()
         nanny.flush()
 
         db_path = str(tmp_path / "metrics.db")
@@ -125,7 +125,7 @@ class TestStepContextManager:
             model, output_dir=str(tmp_path), trace_interval=100, verbose=False
         )
         with nanny.step(1):
-            model(torch.randn(2, 8)).sum().backward()
+            model(torch.randn(2, 8, requires_grad=True)).sum().backward()
         nanny.flush()
 
         db_path = str(tmp_path / "metrics.db")
@@ -140,7 +140,7 @@ class TestStepContextManager:
         )
         for step in range(25):
             with nanny.step(step):
-                model(torch.randn(2, 8)).sum().backward()
+                model(torch.randn(2, 8, requires_grad=True)).sum().backward()
         nanny.flush()
 
         db_path = str(tmp_path / "metrics.db")
@@ -176,7 +176,7 @@ class TestManualStepAPI:
             model, output_dir=str(tmp_path), trace_interval=1, verbose=False
         )
         nanny.begin_step(0)
-        model(torch.randn(2, 8)).sum().backward()
+        model(torch.randn(2, 8, requires_grad=True)).sum().backward()
         nanny.end_step()
         nanny.flush()
 
@@ -270,7 +270,7 @@ class TestScalerMonitoring:
         )
         for step in range(3):
             with nanny.step(step):
-                model(torch.randn(2, 8)).sum().backward()
+                model(torch.randn(2, 8, requires_grad=True)).sum().backward()
         nanny.flush()
 
         db_path = str(tmp_path / "metrics.db")
@@ -285,10 +285,10 @@ class TestScalerMonitoring:
             trace_interval=1, verbose=False
         )
         with nanny.step(0):
-            model(torch.randn(2, 8)).sum().backward()
+            model(torch.randn(2, 8, requires_grad=True)).sum().backward()
         scaler.set_scale(512.0)   # 模拟 overflow（scale 下降）
         with nanny.step(1):
-            model(torch.randn(2, 8)).sum().backward()
+            model(torch.randn(2, 8, requires_grad=True)).sum().backward()
         nanny.flush()
 
         db_path = str(tmp_path / "metrics.db")
@@ -305,7 +305,7 @@ class TestScalerMonitoring:
             trace_interval=1, verbose=False
         )
         with nanny.step(0):
-            model(torch.randn(2, 8)).sum().backward()
+            model(torch.randn(2, 8, requires_grad=True)).sum().backward()
         nanny.close()
 
 
@@ -369,7 +369,7 @@ class TestCloseAndContextManager:
             model, output_dir=str(tmp_path), trace_interval=1, verbose=False
         ) as nanny:
             with nanny.step(0):
-                model(torch.randn(2, 8)).sum().backward()
+                model(torch.randn(2, 8, requires_grad=True)).sum().backward()
 
         # __exit__ 后数据应已落盘
         assert db_count(db_path, "layer_stats") > 0

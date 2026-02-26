@@ -60,6 +60,11 @@ def _run_step(nanny, model, x, step=0, run_backward=True):
         if p.grad is not None:
             p.grad.zero_()
 
+    # 让输入也参与梯度计算，使 full_backward_hook 能接收到 grad_input，
+    # 同时消除 PyTorch "no inputs require gradients" 的 UserWarning。
+    if run_backward and not x.requires_grad:
+        x = x.detach().requires_grad_(True)
+
     with nanny.step(step):
         out = model(x)
         if run_backward:
