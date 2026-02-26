@@ -82,6 +82,10 @@ MixedPrecisionNanny/
 │   └── numerical_checker.py # 张量统计计算 + 告警规则
 ├── storage/                 # 数据持久化
 │   └── sqlite_writer.py     # 异步 SQLite 写入器（WAL 模式）
+├── examples/                # 训练示例
+│   ├── train_resnet_classification.py  # ResNet-18 分类训练 + 监控
+│   ├── train_yolo_detection.py         # Tiny-YOLO 检测训练 + 监控
+│   └── README.md
 ├── tests/                   # 测试套件（183 个测试）
 │   ├── conftest.py          # 公共 fixtures 和工具函数
 │   ├── test_sampler.py      # Sampler 单元测试
@@ -162,6 +166,25 @@ python cli.py alerts --db nanny_logs/metrics.db --severity ERROR
 # 查看指定 step 的各层统计
 python cli.py stats --db nanny_logs/metrics.db --step 100
 ```
+
+## 训练示例
+
+`examples/` 目录提供了两个完整的训练示例，展示如何在真实模型中集成监控：
+
+| 示例 | 模型 | 任务 | 说明 |
+|------|------|------|------|
+| `train_resnet_classification.py` | ResNet-18 | 图像分类 | 合成 CIFAR-10 数据，SGD 优化 |
+| `train_yolo_detection.py` | Tiny-YOLO | 目标检测 | 合成检测数据，多分支 Loss |
+
+```bash
+# ResNet 分类训练
+python examples/train_resnet_classification.py
+
+# YOLO 检测训练
+python examples/train_yolo_detection.py
+```
+
+详见 [examples/README.md](examples/README.md)。
 
 ## 快速开始
 
