@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mixed-precision-nanny"
+version = "0.1.0"
+description = "混合精度训练保姆——深度学习 FP16/BF16 训练问题诊断与监控工具"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.8"
+keywords = [
+    "deep-learning",
+    "mixed-precision",
+    "fp16",
+    "bf16",
+    "pytorch",
+    "training",
+    "monitoring",
+    "debugging",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "torch>=1.8",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "numpy",
+]
+
+[project.scripts]
+mpnanny = "mixed_precision_nanny.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/TrainSight/MixedPrecisionNanny"
+Repository = "https://github.com/TrainSight/MixedPrecisionNanny"
+"Bug Tracker" = "https://github.com/TrainSight/MixedPrecisionNanny/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["mixed_precision_nanny*"]
+exclude = ["tests*", "docs*", "skills*", "mcp_server*"]
